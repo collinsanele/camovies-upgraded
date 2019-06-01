@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Movies Search</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.4/css/bulma.min.css">
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    <style>
+      html{
+        background-color: black;
+      }
+      .center{
+        text-align:center;
+      }
+      img{
+        width:100%;
+      }
+      #second{
+        display:none;
+      }
+    </style>
+  </head>
+  <body>
+  <nav class="navbar is-info">
+    <div class="navbar-brand">
+      <div class="navbar-item">
+        <!--Movies Search-->
+        <figure class="image is-24x24">
+        <img width="50" src="https://static.thenounproject.com/png/32226-200.png">
+        </figure>
+        </div>
+        <div class="navbar-item">
+          <span class="has-text-black">CA Movies Search</span>
+        </div>
+    </div><!--End of navbar brand-->
+  </nav>
+  <section id="first" class="section">
+    <div class="container">
+      <div class="box has-background-black">
+        <h3 class="title is-6 center has-text-white">
+          Search for a movie
+        </h3>
+        <div class="field">
+          <div class="control">
+            <input class="input is-success has-background-black has-text-white">
+          </div>
+        </div><!--End of field-->
+      </div><!--End of box-->
+      <div class="has-text-centered">
+      <button id="fetch" class="button is-success">Fetch</button>
+      </div><!--End of button div-->
+      <div id="display" class="box has-background-black">
+      </div><!--End of second box-->
+    </div><!--End of container-->
+  </section>
+  
+  <section id="second" class="section">
+    <div id="display2" class="box">
+    </div>
+  </section>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <script>
+  // fetch button
+  let fetch =document.getElementById("fetch");
+  
+  
+  let query = document.querySelector('input');
+  let url = 'http://www.omdbapi.com/?apiKey=adfa54be&page=1&s='
+  
+  
+  
+  fetch.addEventListener('click', process);
+  
+  
+  
+  function process(e){
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200){
+    let div = '<div class="columns is-multiline">';
+    JSON.parse(this.responseText).Search.forEach((ele)=>{
+    if (ele.Poster.length < 5 || ele.Poster==='N/A'){
+    ele.Poster = "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcTI6aOF2lfRnmFrBkHS97ORqrB31ALaBU62WCyo84uiTCXgQUp-";
+    }
+    let result = `
+    <div class='column is-one-quarter'>
+    <a class='link' target='_blank' href='http://www.omdbapi.com/?apiKey=adfa54be&i=${ele.imdbID}'><img class='image' src="${ele.Poster}"></a>
+    <strong class='content has-text-white'>Title: ${ele.Title}</strong>
+    </div>`
+    div+=result;
+    });
+    div+='</div>';
+    document.getElementById('display').innerHTML = div;  
+     
+    let links = document.querySelectorAll('.link');
+    for (let i=0; i<links.length; i++){
+    links[i].addEventListener('click', process2)
+    }
+    }
+    };
+    xhttp.open("GET", url+query.value, true);
+    xhttp.send();
+    
+    
+    
+     
+
+  } //End of process function
+  
+  
+  
+  
+  function process2(e){
+     e.preventDefault();
+    //alert(this.href);
+   
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+    //document.getElementById("demo").innerHTML = this.responseText;
+    let data = JSON.parse(this.responseText);
+    let div = '<div class="section">';
+    let result = `<div class="card">
+    <div class="card-image">
+    <figure class="image is-4by3">
+    <img src="${data.Poster}" alt="Placeholder image">
+    </figure>
+    </div>
+    <div class="card-content">
+    <div class="media">
+    <div class="media-left">
+    <figure class="image is-48x48">
+    <img src="${data.Poster}" alt="Placeholder image">
+    </figure>
+    </div>
+    <div class="media-content">
+    <p class="title is-4">${data.Title}</p>
+    <p class="subtitle is-6"></p>
+    </div>
+    </div>
+    
+    <div class="content has-text-centered">
+    <br><strong>Released: ${data.Released}</strong>
+    <br><strong>Rated: ${data.Rated}</strong>
+    <br><strong>Genre: ${data.Genre}</strong>
+    <br><strong>Awards: ${data.Awards}</strong>
+    <br><strong>Director: ${data.Director}</strong>
+    <br><strong>Writer: ${data.Writer}</strong>
+    <br><strong>Imdb Rating ${data.imdbRating}</strong>
+    </a>
+    
+    <br>
+    <nav class="level is-mobile">
+    <div class="level-left">
+    <div class="level-item">
+    <a id="back" class="button is-success">
+    Back
+    </a>
+    </div>
+    </div><!--End of level left-->
+    <div class="level-right">
+    <p class="level-item">
+    <a target="_blank" href="https://imdb.com/title/${data.imdbID}"class="button is-success">
+    IMDB
+    </a>
+    </p>
+    </div><!--End of level right-->
+    </nav><!--End of level-->
+    </div>
+    </div>
+    </div>`;
+    div += result;
+    div += '</div>';
+    document.querySelector('#second').style.display = 'block';
+    document.querySelector('#first').style.display = 'none';
+    document.querySelector('#display2').innerHTML = div;
+    document.querySelector('#back').onclick = back;
+    }
+    }
+    
+    xhttp.open("GET", this.href, true);
+    xhttp.send();
+    
+    } //End of process2
+    
+    
+    
+    //.then((data)=> {console.log(data.Poster)
+  
+  
+  function back(){
+    document.querySelector("#second").style.display = 'none';
+    document.querySelector('#first').style.display = 'block';
+  }
+  
+  
+  </script>
+  </body>
+</html>
